@@ -13,6 +13,8 @@ ECHO 2.Run NadekoBot
 ECHO 3.Install Dependencies (Redis, FFmpeg, and youtube-dl)
 ECHO 4.Setup credentials.json (make sure you've downloaded Nadeko first!)
 ECHO 5.Exit 
+::TODO implement auto run?
+::TODO implement auto install everything
 
 ECHO.
 ECHO Make sure you are running this script as Administrator!
@@ -39,6 +41,7 @@ git --version >nul 2>&1 || GOTO :git
 
 IF EXIST NadekoBot\ (BREAK) ELSE (GOTO install2)
 TITLE Updating NadekoBot...
+ECHO Existing installation detected, updating...
 git pull 
 ECHO.
 ECHO Operation completed.
@@ -47,10 +50,13 @@ GOTO End
 
 :install2
 TITLE Installing NadekoBot...
+ECHO No existing installation found, downloading NadekoBot...
 git clone https://github.com/Kwoth/NadekoBot.git
-
+ECHO.
+ECHO Downloaded.
 GOTO End
 
+::Running Nadeko
 :run
 ECHO.
 ECHO Option 2 selected.
@@ -64,6 +70,7 @@ ECHO NadekoBot stopped.
 ::don't know why but the script shuts itself at this point
 GOTO End
 
+::Dependency install
 :dependency
 :initial
 ::Start youtube-dl installation
@@ -85,6 +92,7 @@ ECHO Downloading youtube-dl...
 powershell -Command "wget https://yt-dl.org/downloads/2017.12.14/youtube-dl.exe -OutFile 'youtube-dl.exe'" 
 ::setx path "%path%;D:\youtube-dl"
 ::DANGEROUS - Do not uncomment this yet! Still working on a workaround.
+::TODO
 ECHO youtube-dl installed.
 ::GOTO dependency
 
@@ -130,11 +138,11 @@ IF ERRORLEVEL 1 GOTO :restartpc
 
 GOTO End
 :already
-
-
+::TODO
+::what was this supposed to be again?
 :credentials
 ECHO.
-
+::TODO
 
 GOTO End
 ::Missing stuff
@@ -190,3 +198,4 @@ exit
 pause
 CLS
 CALL NadekoInstaller.bat
+::fix shut up script pls
