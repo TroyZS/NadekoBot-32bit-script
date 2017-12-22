@@ -2,6 +2,7 @@
 TITLE NadekoBot Installer
 ::Define locations/alias
 SET root=%~dp0
+SET nadeko=%~dp0\NadekoBot\src\NadekoBot
 ::SET wget=%~dp0\wget\wget.exe
 ::SET githubssl=%~dp0\wget\DigiCertSHA2ExtendedValidationServerCA.crt
 
@@ -43,6 +44,7 @@ SET root=%~dp0
   IF EXIST NadekoBot\ (BREAK) ELSE (GOTO :install)
   TITLE Updating NadekoBot...
   ECHO Existing installation detected, updating...
+  cd NadekoBot\
   git pull
   ECHO.
   ECHO Operation completed.
@@ -59,91 +61,135 @@ SET root=%~dp0
 
 ::[2]
 :run
-  ECHO.
-  ECHO Option 2 selected.
-  IF EXIST NadekoBot\ (BREAK) ELSE (GOTO missing)
+	ECHO.
+	ECHO Option 2 selected.
+	IF EXIST NadekoBot\ (BREAK) ELSE (GOTO missing)
 
-  ECHO Running NadekoBot...
-  CD NadekoBot\src\NadekoBot\
-  dotnet run -c Release
-  ECHO.
-  ECHO NadekoBot stopped.
-  ::don't know why but the script shuts itself at this point
-  GOTO End
+	ECHO Running NadekoBot...
+	TITLE Running NadekoBot...
+	CD NadekoBot\src\NadekoBot\
+	dotnet run -c Release
+	ECHO.
+	ECHO NadekoBot stopped.
+	::don't know why but the script shuts itself at this point
+	GOTO End
 
 ::[3]
 :dependency
-  :initial
-  ::Start youtube-dl installation
-  ECHO Option 3 selected.
-  GOTO youtube-dl
-  youtube-dl --version >nul 2>&1 || GOTO :youtube-dl
-  ffmpeg -version >nul 2>&1 || GOTO :ffmpeg
-  ::dir "\
-  ECHO Dependencies are already installed.
+	::Start youtube-dl installation
+	ECHO Option 3 selected.
+	::@ECHO ON
+	cd %nadeko%
+	youtube-dl --version >nul 2>&1 || GOTO :youtube-dl
+	ffmpeg -version >nul 2>&1 || GOTO :ffmpeg
+	echo test success
+	pause
+	ECHO FFmpeg and youtube-dl are installed.
+	GOTO 32bitmusic
+	::ECHO Dependencies are already installed.
 
 
-  :youtube-dl
+	:youtube-dl
     ::Start youtube-dl installation
-    @ECHO on
-    cd\
-    mkdir youtube-dl
-    cd youtube-dl
+    ::@ECHO on
+    ::cd\
+    ::mkdir youtube-dl
+    ::cd youtube-dl
     ECHO Downloading youtube-dl...
+	cd %root%/NadekoBot/src/NadekoBot
     powershell -Command "wget https://yt-dl.org/downloads/2017.12.14/youtube-dl.exe -OutFile 'youtube-dl.exe'"
-    ::setx path "%path%;D:\youtube-dl"
-    ::DANGEROUS - Do not uncomment this yet! Still working on a workaround.
-    ::TODO
-    ECHO youtube-dl installed.
-    ::GOTO dependency
+    ECHO Downloaded.
+	ECHO.
+    ::ECHO youtube-dl installed.
+    GOTO dependency
 
-  :ffmpeg
+	:ffmpeg
     ::Start ffmpeg installation
+	::@ECHO ON
     ECHO Downloading ffmpeg...
-    ::TODO
-    ECHO FFmpeg installed.
-    ::GOTO dependency
+	SET ffmpegzip=ffmpeg-3.4.1-win32-static
+	::cd\
+	::mkdir ffmpeg
+	::cd ffmpeg
+	::mkdir ffmpegtemp
+	cd %root%/NadekoBot/src/NadekoBot
+	powershell -Command "wget https://ffmpeg.zeranoe.com/builds/win32/static/ffmpeg-3.4.1-win32-static.zip -OutFile '%nadeko%\%ffmpegzip%.zip'"
+	powershell -Command "Expand-Archive -Path %nadeko%\%ffmpegzip%.zip -DestinationPath %nadeko%"
+	del %ffmpegzip%.zip
+	move %nadeko%\%ffmpegzip%\bin\ffmpeg.exe
+	rd %ffmpeg%
+    ECHO Downloaded. 
+	ECHO.
+    ::ECHO FFmpeg installed.
+    GOTO dependency
+	
+	:32bitmusic
+	::Acquire required 32-bit files for music
+	ECHO Removing 64bit versions...
+	cd %nadeko%
+	del libsodium.dll
+	del opus.dll
+	ECHO.
+	ECHO Downloading 32bit files...
+	powershell -Command "wget 'https://github.com/MaybeGoogle/NadekoFiles/raw/master/x86 Prereqs/NadekoBot_Music/libsodium.dll' -OutFile %nadeko%\libsodium.dll"
+	powershell -Command "wget 'https://github.com/MaybeGoogle/NadekoFiles/raw/master/x86 Prereqs/NadekoBot_Music/opus.dll' -OutFile %nadeko%\opus.dll"
+	ECHO Downloaded.
 
-  :redis
+	:redis
     ::Start redis installation and services
-    ECHO Starting redis installation...
-    echo You can specify the installation folder of redis.
-    SET /P "redisfolder=Path To Folder (leave blank to install to C:\Program Files):"
-    IF EXIST "%redisfolder%" GOTO :customredis
-    :normalredis
-    ECHO Selected C:\Program Files as installation folder.
-    mkdir "C:\Program Files\Redis"
-    cd "C:\Program Files\Redis"
-    GOTO redisdownload
-  :customredis
-    ECHO Selected %redisfolder% as installation folder.
-    mkdir "%redisfolder%\Redis"
-    cd "%redisfolder%\Redis"
-    GOTO redisdownload
+		ECHO Starting redis installation...
+		echo You can specify the installation folder of redis.
+		SET /P "redisfolder=Path To Folder (leave blank to install to C:\Program Files):"
+		IF EXIST "%redisfolder%" GOTO :customredis
+	:normalredis
+		ECHO Selected C:\Program Files as installation folder.
+		mkdir "C:\Program Files\Redis"
+		cd "C:\Program Files\Redis"
+		GOTO redisdownload
+	:customredis
+		ECHO Selected %redisfolder% as installation folder.
+		mkdir "%redisfolder%\Redis"
+		cd "%redisfolder%\Redis"
+		GOTO redisdownload
 
-  :redisdownload
+	:redisdownload
     powershell -Command "wget 'https://raw.githubusercontent.com/MaybeGoogle/NadekoFiles/master/x86 Prereqs/redis-server.exe' -OutFile 'redis-server.exe'"
-  :redisdownloadcont
+	:redisdownloadcont
     ECHO Redis downloaded. Installing as service...
     ::@ECHO on
     redis-server.exe --service-install
-    ECHO.
-    ECHO Redis installed as service.
-    ECHO At this stage, you should restart your computer; otherwise music will absolutely not work.
-    ECHO.
-    ECHO Press 1 to restart now, or press 2 if you plan to restart later.
-    CHOICE /c 12
+	redis-server.exe --service-start
+    ::ECHO.
+    ::ECHO Redis installed as service.
+    ::ECHO At this stage, you should restart your computer; otherwise music will absolutely not work.
+    ::ECHO Due to the way how registry edits work, you'll need to restart your computer in order for them to take effect. If you don't, music will not work for the remainder of this computer's session.
+	::ECHO.
+    ::ECHO Press 1 to restart now, or press 2 if you plan to restart later.
+    ::CHOICE /c 12
 
-    IF ERRORLEVEL 2 GOTO :End
-    IF ERRORLEVEL 1 GOTO :restartpc
+    ::IF ERRORLEVEL 2 GOTO :End
+    ::IF ERRORLEVEL 1 GOTO :restartpc
+	ECHO Redis installed as service and started.
 
     GOTO End
   :already
     ::TODO
     ::what was this supposed to be again?
 
-    ::Missing stuff
-  :dotnet
+
+::[4]
+  :credentials
+  ECHO.
+  ::TODO
+  GOTO End
+
+::[5]
+  :exit
+  exit
+  
+
+::Misc
+	:dotnet
     ECHO.
     TITLE Missing dotnet!
     ECHO dotnet not found (or installed incorrectly). Double-check to see if it's installed correctly.
@@ -173,7 +219,7 @@ SET root=%~dp0
     ECHO The operation failed because the script wasn't run as administrator.
     ECHO Right click on the script, then click "Run as administrator".
     PAUSE
-    GOTO exit
+    EXIT
   :restartpc
     CLS
     ECHO.
@@ -185,17 +231,6 @@ SET root=%~dp0
     CHOICE /c 12
     IF ERRORLEVEL 2 GOTO End
     IF ERRORLEVEL 1 SHUTDOWN -r
-
-::[4]
-  :credentials
-  ECHO.
-  ::TODO
-  GOTO End
-
-::[5]
-  :exit
-  exit
-
 
 :End
   ::should reopen the script again
