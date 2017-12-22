@@ -29,12 +29,12 @@ timeout /t 2 >nul
   ::TODO implement auto install everything
   ECHO.
   ECHO.
-  ECHO Recommended order for new installs are [3], [1], [4], then [2].
+  ECHO Recommended order for a new install is [1], [3], [4], then [2].
 
   ECHO.
   ECHO Make sure you are running this script as Administrator!
   ECHO.
-  %root%
+  %drive%
   cd %root%
 
   CHOICE /c 12345 /m "Choose [1] to Download, [2] to Run, or [5] to Exit."
@@ -98,9 +98,8 @@ timeout /t 2 >nul
 	::@ECHO ON
 	youtube-dl --version >nul 2>&1 || GOTO :youtube-dl
 	ffmpeg -version >nul 2>&1 || GOTO :ffmpeg
-	echo test success
-	pause
 	ECHO FFmpeg and youtube-dl are installed.
+  pause
 	GOTO 32bitmusic
 	::ECHO Dependencies are already installed.
 
@@ -108,25 +107,25 @@ timeout /t 2 >nul
 	:youtube-dl
     ::Start youtube-dl installation
     ECHO Downloading youtube-dl...
-	cd %root%/NadekoBot/src/NadekoBot
+	  cd %root%/NadekoBot/src/NadekoBot
     powershell -Command "wget https://yt-dl.org/downloads/2017.12.14/youtube-dl.exe -OutFile 'youtube-dl.exe'"
     ECHO Downloaded.
-	ECHO.
+	  ECHO.
     GOTO dependency
 
 	:ffmpeg
     ::Start ffmpeg installation
     ECHO Downloading ffmpeg...
-	SET ffmpegzip=ffmpeg-3.4.1-win32-static
-	cd %root%/NadekoBot/src/NadekoBot
-	powershell -Command "wget https://ffmpeg.zeranoe.com/builds/win32/static/ffmpeg-3.4.1-win32-static.zip -OutFile '%nadeko%\%ffmpegzip%.zip'"
-	powershell -Command "Expand-Archive -Path %nadeko%\%ffmpegzip%.zip -DestinationPath %nadeko%"
-	del %ffmpegzip%.zip
-	move %nadeko%\%ffmpegzip%\bin\ffmpeg.exe
-	rd %ffmpeg%
-  ECHO Downloaded.
-	ECHO.
-  GOTO dependency
+  	SET ffmpegzip=ffmpeg-3.4.1-win32-static
+  	cd %root%/NadekoBot/src/NadekoBot
+  	powershell -Command "wget https://ffmpeg.zeranoe.com/builds/win32/static/ffmpeg-3.4.1-win32-static.zip -OutFile '%nadeko%\%ffmpegzip%.zip'"
+  	powershell -Command "Expand-Archive -Path %nadeko%\%ffmpegzip%.zip -DestinationPath %nadeko%"
+  	del %ffmpegzip%.zip
+  	move %nadeko%\%ffmpegzip%\bin\ffmpeg.exe
+  	deltree /Y %ffmpeg%
+    ECHO Downloaded.
+  	ECHO.
+    GOTO dependency
 
   :32bitmusic
   	::Acquire required 32-bit files for music
@@ -163,18 +162,18 @@ timeout /t 2 >nul
     ECHO Redis downloaded. Installing as service...
     ::@ECHO on
     redis-server.exe --service-install
-	redis-server.exe --service-start
+	   redis-server.exe --service-start
     ::ECHO.
     ::ECHO Redis installed as service.
     ::ECHO At this stage, you should restart your computer; otherwise music will absolutely not work.
     ::ECHO Due to the way how registry edits work, you'll need to restart your computer in order for them to take effect. If you don't, music will not work for the remainder of this computer's session.
-	::ECHO.
+	   ::ECHO.
     ::ECHO Press 1 to restart now, or press 2 if you plan to restart later.
     ::CHOICE /c 12
 
     ::IF ERRORLEVEL 2 GOTO :End
     ::IF ERRORLEVEL 1 GOTO :restartpc
-	ECHO Redis installed as service and started.
+	   ECHO Redis installed as service and started.
 
     GOTO End
   :already
