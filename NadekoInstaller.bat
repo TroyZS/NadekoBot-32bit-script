@@ -3,8 +3,6 @@ TITLE NadekoBot Installer
 ::Define locations/alias
 SET root=%~dp0
 SET nadeko=%~dp0\NadekoBot\src\NadekoBot
-::SET wget=%~dp0\wget\wget.exe
-::SET githubssl=%~dp0\wget\DigiCertSHA2ExtendedValidationServerCA.crt
 
 ::Initial startup prompts
   ECHO Welcome to NadekoBot 1.9+ 32bit.
