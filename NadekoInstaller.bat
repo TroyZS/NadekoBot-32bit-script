@@ -117,12 +117,13 @@ timeout /t 2 >nul
     ::Start ffmpeg installation
     ECHO Downloading ffmpeg...
   	SET ffmpegzip=ffmpeg-3.4.1-win32-static
+	%drive%
   	cd %root%/NadekoBot/src/NadekoBot
   	powershell -Command "wget https://ffmpeg.zeranoe.com/builds/win32/static/ffmpeg-3.4.1-win32-static.zip -OutFile '%nadeko%\%ffmpegzip%.zip'"
   	powershell -Command "Expand-Archive -Path %nadeko%\%ffmpegzip%.zip -DestinationPath %nadeko%"
   	del %ffmpegzip%.zip
   	move %nadeko%\%ffmpegzip%\bin\ffmpeg.exe
-  	deltree /Y %ffmpeg%
+  	rmdir /s /q %ffmpeg%
     ECHO Downloaded.
   	ECHO.
     GOTO dependency
