@@ -1,0 +1,2 @@
+dotnet --version >dotnetcheck.txt
+git --version >gitcheck.txt

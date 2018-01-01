@@ -7,21 +7,22 @@ SET drive=%~d0
 
 ::::::Check for OS (Windows 7 incompatible)::::::
 ECHO Checking windows version...
-systeminfo | findstr /B /C:"OS Name" >ver.txt
-findstr "7" ver.txt >nul && GOTO :win7
-findstr "8" ver.txt >nul && ECHO Windows 8/8.1 detected.
-findstr "10" ver.txt >nul && ECHO Windows 10 detected.
-ECHO Proceeding with script...
-del ver.txt
-timeout /t 2 >nul
+ECHO Skipping!
+::systeminfo | findstr /B /C:"OS Name" >ver.txt
+::findstr "7" ver.txt >nul && GOTO :win7
+::findstr "8" ver.txt >nul && ECHO Windows 8/8.1 detected.
+::findstr "10" ver.txt >nul && ECHO Windows 10 detected.
+::ECHO Proceeding with script...
+::del ver.txt
+::timeout /t 2 >nul
 
 ::::::Check computing size:::::
-IF EXIST "%PROGRAMFILES(X86)%" (GOTO 64bit) ELSE (BREAK)
+::IF EXIST "%PROGRAMFILES(X86)%" (GOTO 64bit) ELSE (BREAK)
 
 ::::::Initial startup prompts::::::
 :startup
   CLS
-  ECHO Welcome to NadekoBot 1.9+ 32bit.
+  ECHO Welcome to NadekoBot 1.9+ modified 64bit.
   ECHO.
   ECHO 1.Install/Update NadekoBot
   ECHO 2.Run NadekoBot (Normally)
@@ -81,26 +82,19 @@ IF EXIST "%PROGRAMFILES(X86)%" (GOTO 64bit) ELSE (BREAK)
 :run
 	ECHO.
 	ECHO Option 2 selected.
-	IF EXIST NadekoBot\ (BREAK) ELSE (GOTO missing)
-	ECHO NadekoBot 1.9+ 32bit.
-	ECHO Mirai was not here.
-	youtube-dl -U
 	redis-server --service-start
-	dotnet --version >nul 2>&1 || GOTO :dotnet
-	ECHO Dotnet installed.
-	ECHO.
-	CD %root%\NadekoBot && dotnet restore
-	CD %nadeko% && dotnet build --configuration Release.
-	GOTO :runfinish
+	IF EXIST NadekoBot\ (BREAK) ELSE (GOTO missing)
+	ECHO Running NadekoBot...
+	TITLE Running NadekoBot...
 	:autorun
 	CD %root%\NadekoBot && dotnet restore
 	CD %nadeko% && dotnet build --configuration Release
 	dotnet run -c Release
 	GOTO :autorun
 	ECHO.
-	:runfinish
-    ECHO NadekoBot stopped.
+	ECHO NadekoBot stopped.
 	GOTO End
+
 ::[3]
 :dependency
 	::Start youtube-dl installation
@@ -140,45 +134,45 @@ IF EXIST "%PROGRAMFILES(X86)%" (GOTO 64bit) ELSE (BREAK)
 
   :32bitmusic
   	::Acquire required 32-bit files for music
-  	ECHO Removing 64bit versions...
-  	cd %nadeko%
-  	del libsodium.dll
-  	del opus.dll
-  	ECHO.
-  	ECHO Downloading 32bit files...
-  	powershell -Command "wget 'https://github.com/MaybeGoogle/NadekoFiles/raw/master/x86 Prereqs/NadekoBot_Music/libsodium.dll' -OutFile %nadeko%\libsodium.dll"
-  	powershell -Command "wget 'https://github.com/MaybeGoogle/NadekoFiles/raw/master/x86 Prereqs/NadekoBot_Music/opus.dll' -OutFile %nadeko%\opus.dll"
-  	ECHO Downloaded.
+  	::ECHO Removing 64bit versions...
+  	::cd %nadeko%
+  	::del libsodium.dll
+  	::del opus.dll
+  	::ECHO.
+  	::ECHO Downloading 32bit files...
+  	::powershell -Command "wget 'https://github.com/MaybeGoogle/NadekoFiles/raw/master/x86 Prereqs/NadekoBot_Music/libsodium.dll' -OutFile %nadeko%\libsodium.dll"
+  	::powershell -Command "wget 'https://github.com/MaybeGoogle/NadekoFiles/raw/master/x86 Prereqs/NadekoBot_Music/opus.dll' -OutFile %nadeko%\opus.dll"
+  	::ECHO Downloaded.
 
 	:redis
     ::Start redis installation and services
 		ECHO Starting redis installation...
-		echo You can specify the installation folder of redis.
-		SET /P "redisfolder=Path To Folder (leave blank to install to C:\Program Files):"
-		IF EXIST "%redisfolder%" GOTO :customredis
+		::echo You can specify the installation folder of redis.
+		::SET /P "redisfolder=Path To Folder (leave blank to install to C:\Program Files):"
+		::IF EXIST "%redisfolder%" GOTO :customredis
 	:normalredis
 		ECHO Selected C:\Program Files as installation folder.
 		mkdir "C:\Program Files\Redis"
 		cd "C:\Program Files\Redis"
 		GOTO redisdownload
 	:customredis
-		ECHO Selected %redisfolder% as installation folder.
-		mkdir "%redisfolder%\Redis"
-		cd "%redisfolder%\Redis"
-		GOTO redisdownload
+		::ECHO Selected %redisfolder% as installation folder.
+		::mkdir "%redisfolder%\Redis"
+		::cd "%redisfolder%\Redis"
+		::GOTO redisdownload
 
 	:redisdownload
-    powershell -Command "wget 'https://raw.githubusercontent.com/MaybeGoogle/NadekoFiles/master/x86 Prereqs/redis-server.exe' -OutFile 'redis-server.exe'"
+    powershell -Command "wget 'https://github.com/MicrosoftArchive/redis/releases/download/win-3.2.100/Redis-x64-3.2.100.zip' -OutFile 'Redis-x64-3.2.100.zip'"
 	:redisdownloadcont
     ECHO Redis downloaded. Installing as service...
     ::@ECHO on
     redis-server.exe --service-install
-	   redis-server.exe --service-start
+	redis-server.exe --service-start
     ::ECHO.
     ::ECHO Redis installed as service.
     ::ECHO At this stage, you should restart your computer; otherwise music will absolutely not work.
     ::ECHO Due to the way how registry edits work, you'll need to restart your computer in order for them to take effect. If you don't, music will not work for the remainder of this computer's session.
-	   ::ECHO.
+	::ECHO.
     ::ECHO Press 1 to restart now, or press 2 if you plan to restart later.
     ::CHOICE /c 12
 
@@ -211,49 +205,49 @@ IF EXIST "%PROGRAMFILES(X86)%" (GOTO 64bit) ELSE (BREAK)
 
   ECHO Please enter your bot client ID:
   SET /p "botid="
-  ECHO Saved "%botid%" as bot's client ID.
+  ECHO Saved %botid% as bot's client ID.
   ECHO.
   ECHO.
 
   ECHO Please enter your bot token. (This is NOT your bot secret!):
   SET /p "token="
-  ECHO Saved "%token%" as bot token.
+  ECHO Saved %token% as bot token.
   ECHO.
   ECHO.
 
   ECHO Please enter your own ID. (can be found by pinging yourself and adding a \ before the @.):
   SET /p "ownerid="
-  ECHO Saved "%ownerid%" as owner ID.
+  ECHO Saved %ownerid% as owner ID.
   ECHO.
   ECHO.
 
   ECHO Please enter your Google API Key. (Refer to the JSON setup guide.):
   SET /p "googleapikey="
-  ECHO Saved "%googleapikey%" as Google API key.
+  ECHO Saved %googleapikey% as Google API key.
   ECHO.
   ECHO.
 
   ECHO Please enter your LoL API Key. (Just press [Enter] to skip.):
   SET /p "lolapikey="
-  ECHO Saved "%lolapikey%" as LoL API key.
+  ECHO Saved %lolapikey% as LoL API key.
   ECHO.
   ECHO.
 
   ECHO Please enter your Mashape API Key. (Just press [Enter] to skip.):
   SET /p "mashapeapikey="
-  ECHO Saved "%mashapeapikey%" as Mashape API key..
+  ECHO Saved %mashapeapikey% as Mashape API key..
   ECHO.
   ECHO.
 
   ECHO Please enter your osu! API Key. (Just press [Enter] to skip.):
   SET /p "osuapikey="
-  ECHO Saved "%osuapikey%" as osu! API key..
+  ECHO Saved %osuapikey% as osu! API key..
   ECHO.
   ECHO.
 
     ECHO Please enter your Cleverbot API Key. (Just press [Enter] to skip.):
   SET /p "cleverbot="
-  ECHO Saved "%cleverbot%" as official cleverbot API key.
+  ECHO Saved %cleverbot% as official cleverbot API key.
   ECHO.
   ECHO.
 
