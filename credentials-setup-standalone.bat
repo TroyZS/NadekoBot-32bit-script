@@ -8,12 +8,23 @@
 
   IF ERRORLEVEL 2 EXIT
   IF ERRORLEVEL 1 ECHO Continuing credentials.json setup.
-  timeout /t 2 >nul
+  
+  ECHO Are you running from source or using the windows installer?
+  ECHO [1] for source, [2] for windows installation.
+  ECHO.
+  ECHO.
+  CHOICE /c 12 
+  
+  IF ERRORLEVEL 2 GOTO :start
+  IF ERRORLEVEL 1 SET type=yes
+  
   ::Begin credentials setup.
-  CLS
   ::CD %nadeko%
   ::MOVE credentials.json credentials.json.bak
-
+  
+  :start
+  CLS
+  timeout /t 2 >nul
   ECHO Please enter your bot client ID:
   SET /p "botid="
   ECHO Saved "%botid%" as bot's client ID.
@@ -80,7 +91,10 @@
   ::unneeded
   ::>>credentials.json ECHO   "PatreonAccessToken": "%patreonapikey%",
   >>credentials.json ECHO   "Db": null,
-  >>credentials.json ECHO   "TotalShards": 1,
+  IF EXIST %type% (>>credentials.json ECHO   "TotalShards": 1,
+  )
+  IF NOT EXIST %type% (>>credentials.json ECHO   "TotalShards": 1
+  )
   >>credentials.json ECHO 	"ShardRunCommand": "dotnet",
   >>credentials.json ECHO 	"ShardRunArguments": "run -c Release -- {0} {1}",
   >>credentials.json ECHO }
@@ -88,6 +102,6 @@
   ECHO.
   ECHO.
   ECHO Saved. 
-  ECHO Please move the generated credentials.json into your system folder.
+  IF EXIST %type% (ECHO Please move the generated credentials.json into your NadekoBot folder.) ELSE (ECHO Please move the generated credentials.json into your system folder.)
   PAUSE
   EXIT
