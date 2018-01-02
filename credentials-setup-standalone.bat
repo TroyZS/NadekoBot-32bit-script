@@ -6,7 +6,7 @@
 
   CHOICE /c yn /m "[y] to continue, [n] to exit.
 
-  IF ERRORLEVEL 2 GOTO :End
+  IF ERRORLEVEL 2 EXIT
   IF ERRORLEVEL 1 ECHO Continuing credentials.json setup.
   timeout /t 2 >nul
   ::Begin credentials setup.
