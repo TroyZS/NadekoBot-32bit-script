@@ -1,3 +1,4 @@
+@ECHO off
 :credentials
   ::Prompt user.
   ECHO.
